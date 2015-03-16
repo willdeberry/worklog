@@ -560,6 +560,9 @@ def main():
                 1d 4h 30m
                 1d4h30m
 
+              Note that, while whitespace is optional, if you do specify a duration on the
+              command line and it includes whitespace, you'll have to quote it.
+
             DATEs
               Dates should be provided in the form YYYY-MM-DD.
 
