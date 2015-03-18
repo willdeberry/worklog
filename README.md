@@ -16,13 +16,13 @@ These command line options are accepted by all of the commands
 
 If you run `worklog` with `--help` and no command, you'll see the main usage and help.
 
-```bash session
+```console
 worklog --help
 ```
 
 You can also run a command with `--help` to see usage and help for that particular command
 
-```bash session
+```console
 worklog start --help
 ```
 
@@ -33,7 +33,7 @@ work with another day's log.
 
 The argument should be in [ISO 8601](http://en.wikipedia.org/wiki/ISO_8601) format, YYYY-MM-DD.
 
-```bash session
+```console
 worklog report --day 2015-03-17
 ```
 
@@ -41,35 +41,35 @@ worklog report --day 2015-03-17
 
 Begin work and shift from one work description to a new one with the `start` command:
 
-```bash session
+```console
 worklog start
 ```
 
 You will be prompted for a description of the work. You can also provide the description of the work on the command
 line as the remaining arguments:
 
-```bash session
+```console
 worklog start fixing directory permissions when ~/.worklog is created
 ```
 
 If you forget to log a change of focus right when it happens, worklog presents some options to specify when the entry
 actually happened:
 
-```bash session
+```console
 workl start --at 13:30 meeting about network design
 ```
 
-```bash session
+```console
 worklog start --ago 45m adjusting order of options with resume command
 ```
 
-```bash session
+```console
 worklog start --ago 1h30m adjusting order of options with resume command
 ```
 
 Note that you can include whitespace in the `--ago` option, but on the command line it must be quoted:
 
-```bash session
+```console
 worklog start --ago '1h 30m' adjusting order of options with resume command
 ```
 
@@ -80,7 +80,7 @@ Shift your focus from one work task back to one you worked on earlier in the day
 `resume` does not accept command line parameters for nor does it prompt for a work description. Instead, it uses all of
 the task descriptions you've entered through `start` so far today to present to you a list of items to choose from.
 
-```bash session
+```console
 worklog resume
 [0] adjusting order of options with resume command
 [1] 13:30 meeting about network design
@@ -91,7 +91,7 @@ Which description:
 
 Like `start`, `resume` accepts the `--at` and `--ago` options for adjusting the timing.
 
-```bash session
+```console
 worklog resume --ago 20m
 ```
 
@@ -100,13 +100,13 @@ worklog resume --ago 20m
 
 End your day or a work session with the `stop` command.
 
-```bash session
+```console
 worklog stop
 ```
 
 Like `start`, `resume` accepts the `--at` and `--ago` options for adjusting the timing.
 
-```bash session
+```console
 worklog stop --at 17:00
 ```
 
@@ -118,7 +118,7 @@ log.
 
 Any other time you want to see the log, without making a change, you can use the `report` command.
 
-```bash session
+```console
 worklog report
 ```
 
