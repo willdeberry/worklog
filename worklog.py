@@ -453,6 +453,12 @@ def on_resume( args ):
             if description not in descriptions:
                 descriptions.append( description )
 
+        # when using resume, it means we're no longer working on the description that is now the first
+        # item in this list, because of how we've sorted it. It is quite inconvenient for the first
+        # choice to be the one we know for sure the user won't pick, bump it to the end of the line
+        most_recent_description = descriptions.pop( 0 )
+        descriptions.append( most_recent_description )
+
         for idx, description in enumerate( descriptions ):
             sys.stdout.write( '[{:d}] {}\n'.format( idx, description ) )
 
