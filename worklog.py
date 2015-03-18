@@ -360,7 +360,7 @@ class Worklog( MutableSequence ):
     def save( self ):
         directory = os.path.split( self.persist_path )[0]
         if not os.access( directory, os.F_OK ):
-            os.makedirs( directory, mode=755 )
+            os.makedirs( directory, mode=0755 )
         with open( self.persist_path, 'w' ) as json_file:
             json.dump( self.store, json_file, cls = KlassEncoder, indent = 4 )
 
