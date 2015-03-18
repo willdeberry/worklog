@@ -56,7 +56,7 @@ If you forget to log a change of focus right when it happens, worklog presents s
 actually happened:
 
 ```console
-workl start --at 13:30 meeting about network design
+worklog start --at 13:30 meeting about network design
 ```
 
 ```console
@@ -122,3 +122,13 @@ Any other time you want to see the log, without making a change, you can use the
 worklog report
 ```
 
+The `report` command rolls up all task entries and adds up the time for each that have the same description.
+
+#### Special Exceptions
+
+`report` has some special rules for excluding entries in the rollup. If the task's full description is "lunch" or
+"break", it remains in the log, but does not take part in the rollup.
+
+Note that this feature is case-insensitive, but the *whole* description must be "lunch" or "break". The tool doesn't
+want to assume that task descriptions like "figuring out why this break statement was removed" isn't real work. The
+compromise is that entries like "lunch with Jim" are treated differently than "lunch".
