@@ -14,7 +14,7 @@ _worklog(){
 			;;
 	esac
 
-	COMPREPLY=( $( compgen -W "${options}" -- "${COMP_WORDS[COMP_CWORD]}" ) )
+	COMPREPLY=( $( compgen -W "--help ${options}" -- "${COMP_WORDS[COMP_CWORD]}" ) )
 }
 
 complete -F _worklog worklog
