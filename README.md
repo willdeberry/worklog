@@ -6,7 +6,7 @@ report telling you how long you worked on each task.
 
 ## installation
 
-`worklog` is simple to install, just run make install with appropriate privileges:
+`worklog` is simple to install, just run `make install` with appropriate privileges:
 
 ```console
 sudo make install
@@ -25,7 +25,7 @@ need to provide alternatives on the command line:
 sudo make install prefix=/opt/ sysconfdir=/opt/etc/
 ```
 
-Remember to use the same override values when making the uninstall target.
+The trailing `/` is critical. Remember to use the same override values when uninstalling
 
 ## usage
 
