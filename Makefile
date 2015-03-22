@@ -1,6 +1,6 @@
 .SHELL: /bin/sh 
 
-.PHONY: install
+.PHONY: install uninstall
 
 prefix ?= /usr/local/
 bindir = $(prefix)bin/
@@ -14,8 +14,16 @@ SCRIPT ?= $(PWD)/worklog.py
 
 install: $(BASHCOMPDIR)worklog_completion.sh $(bindir)worklog
 
+${BASHCOMPDIR}:
+	mkdir -p ${BASHCOMPDIR}
+
 $(BASHCOMPDIR)worklog_completion.sh: $(BASHCOMPDIR)
 	ln -s $(BASHCOMP) $@
 
 $(bindir)worklog:
 	ln -s $(SCRIPT) $@
+
+uninstall:
+	unlink $(BASHCOMPDIR)worklog_completion.sh
+	unlink $(bindir)worklog
+
