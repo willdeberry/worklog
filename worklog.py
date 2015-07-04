@@ -5,7 +5,9 @@ from collections import Callable
 from collections.abc import MutableSequence
 from datetime import date, datetime, timedelta, time
 import errno
+from getpass import getpass
 import itertools
+from jira.client import JIRA
 import json
 import os
 import re
@@ -295,8 +297,9 @@ def resolve_at_or_ago( args, date ):
 
 
 class Task( object ):
-    def __init__( self, start, description ):
+    def __init__( self, start, ticket, description ):
         self.start = start
+        self.ticket = ticket
         self.description = description.strip()
 
     def include_in_rollup( self ):
@@ -316,7 +319,7 @@ class GoHome( object ):
 
 class DummyRightNow( Task ):
     def __init__( self ):
-        super( DummyRightNow, self ).__init__( start = now(), description = '' )
+        super( DummyRightNow, self ).__init__( start = now(), ticket = '', description = '' )
 
 
 
@@ -423,6 +426,7 @@ def on_start( args ):
     worklog = parse_common_args( args )
 
     start = resolve_at_or_ago( args, date = worklog.when )
+    ticket = args.ticket
 
     try:
         description = ' '.join( args.description )
@@ -434,7 +438,7 @@ def on_start( args ):
             except EOFError:
                 raise Abort()
 
-        worklog.insert( Task( start = start, description = description ) )
+        worklog.insert( Task( start = start, ticket = ticket, description = description ) )
         worklog.save()
     except Abort:
         sys.stdout.write( '\n' )
@@ -468,6 +472,9 @@ def on_resume( args ):
             try:
                 idx = int( input( 'Which description: ' ) )
                 description = descriptions[idx]
+                for task in worklog:
+                    if task.description == description:
+                        ticket = task.ticket
             except KeyboardInterrupt:
                 raise Abort()
             except EOFError:
@@ -477,7 +484,7 @@ def on_resume( args ):
             except IndexError:
                 sys.stdout.write( 'Must be an integer between 0 and {:d}\n'.format( len( descriptions ) ) )
 
-        worklog.insert( Task( start = start, description = description ) )
+        worklog.insert( Task( start = start, ticket = ticket, description = description ) )
         worklog.save()
     except Abort:
         sys.stdout.write( '\n' )
@@ -491,6 +498,26 @@ def on_stop( args ):
     worklog.insert( GoHome( start = resolve_at_or_ago( args, date = worklog.when ) ) )
     worklog.save()
     report( worklog )
+    log_to_jira( worklog )
+
+
+def log_to_jira( worklog ):
+    options = { 'server': 'http://dev.jira.gwn' }
+    username = input( '\nJira Username: ' )
+    password = getpass()
+    auth = ( username, password )
+    jira = JIRA( options, basic_auth = auth )
+    if len( worklog ) == 0:
+        pass
+    else:
+        for task, next_task in worklog.pairwise():
+            if isinstance( task, GoHome ): continue
+
+            if task.ticket is not None:
+                time = Duration( delta = next_task.start - task.start )
+                ticket = jira.issue( task.ticket )
+                sys.stdout.write( 'Logging {} to ticket {}\n'.format( time, ticket ) )
+                jira.add_worklog( issue = ticket, timeSpent = str( time ) )
 
 
 def report( worklog ):
@@ -521,13 +548,14 @@ def report( worklog ):
                 else:
                     rollup[task.description] += delta
 
-            sys.stdout.write( '    {:5s} {} {:5s} {}{!s:>7}{}  {}\n'.format(
+            sys.stdout.write( '    {:5s} {} {:5s} {}{!s:>7}{}  {}  {}\n'.format(
                 Color.green( task.start.strftime( '%H:%M' ) ),
                 Color.black( '-', intense = True ),
                 colorize_end_time( next_task.start.strftime( '%H:%M' ) ),
                 Color.black( '(', intense = True ),
                 Duration( delta ).colorized(),
                 Color.black( ')', intense = True ),
+                task.ticket,
                 task.description
             ) )
 
@@ -590,6 +618,7 @@ def main():
     start_parser = sub_parser.add_parser( 'start', help = blurb, description = blurb, parents = [ common_parser ] )
     start_parser.add_argument( '--ago', metavar = 'DURATION', help = 'start the task DURATION time ago, instead of now' )
     start_parser.add_argument( '--at', metavar = 'TIME', help = 'start the task at TIME, instead of now' )
+    start_parser.add_argument( '--ticket', metavar = 'TICKET', help = 'the TICKET associated with the task' )
     start_parser.add_argument( 'description', metavar = 'DESCRIPTION', nargs = argparse.REMAINDER, help = "specify the task's description on the command line" )
 
     blurb = 'like start, but reuse the description from a previous task in this worklog by seleting it from a list'
