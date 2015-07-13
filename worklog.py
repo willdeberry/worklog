@@ -515,9 +515,20 @@ def log_to_jira( worklog ):
 
             if task.ticket is not None:
                 time = Duration( delta = next_task.start - task.start )
+                started = '{}-{}-{}T{}:{}:00.000-0400'.format(
+                    task.start.year,
+                    task.start.month,
+                    task.start.day,
+                    task.start.hour,
+                    task.start.minute
+                )
                 ticket = jira.issue( task.ticket )
                 sys.stdout.write( 'Logging {} to ticket {}\n'.format( time, ticket ) )
-                jira.add_worklog( issue = ticket, timeSpent = str( time ) )
+                jira.add_worklog(
+                    issue = ticket,
+                    timeSpent = str( time ),
+                    started = datetime.strptime( started, '%Y-%m-%dT%H:%M:%S.000%z' )
+                )
 
 
 def report( worklog ):
