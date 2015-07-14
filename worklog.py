@@ -502,8 +502,25 @@ def on_stop( args ):
 
 def log_to_jira( worklog ):
     options = { 'server': 'http://dev.jira.gwn' }
-    username = input( '\nJira Username: ' )
-    password = getpass()
+    config_path = os.path.expanduser( '~/.worklog/config.json' )
+
+    try:
+        with open( config_path ) as json_data:
+            auth_file = json.load( json_data )
+            username = auth_file['username']
+
+            try:
+                password = auth_file['password']
+            except KeyError:
+                password = getpass()
+
+    except OSError as e:
+        if e.errno == 2:
+            username = input( '\nJira Username: ' )
+            password = getpass()
+        else:
+            raise e
+
     auth = ( username, password )
     jira = JIRA( options, basic_auth = auth )
     if len( worklog ) == 0:
@@ -522,7 +539,7 @@ def log_to_jira( worklog ):
                     task.start.minute
                 )
                 ticket = jira.issue( task.ticket )
-                sys.stdout.write( 'Logging {} to ticket {}\n'.format( time, ticket ) )
+                sys.stdout.write( '\nLogging {} to ticket {}\n'.format( time, ticket ) )
                 jira.add_worklog(
                     issue = ticket,
                     timeSpent = str( time ),
