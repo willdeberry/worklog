@@ -637,6 +637,13 @@ def main():
               Times should be provided in the form HH:MM. All times used, including "now",
               have their seconds zeroed out. All times provided on the command line are
               assumed to occur today.
+
+            Config File:
+              ~/.worklog/config.json - Can be created to store username and password to avoid
+              being prompted to type in your credentials for Jira authentication.
+
+              Example File:
+                { "username" : "jsmith" }
         """ ),
     )
     sub_parser = parser.add_subparsers( dest = 'command' )
