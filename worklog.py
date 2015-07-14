@@ -498,7 +498,6 @@ def on_stop( args ):
     worklog.insert( GoHome( start = resolve_at_or_ago( args, date = worklog.when ) ) )
     worklog.save()
     report( worklog )
-    log_to_jira( worklog )
 
 
 def log_to_jira( worklog ):
@@ -586,6 +585,9 @@ def on_report( args ):
     report( worklog )
 
 
+def on_upload( args ):
+    worklog = parse_common_args( args )
+    log_to_jira( worklog )
 
 
 def main():
@@ -644,6 +646,9 @@ def main():
 
     blurb = 'report the current state of the worklog'
     report_parser = sub_parser.add_parser( 'report', help = blurb, description = blurb, parents = [ common_parser ] )
+
+    blurb = 'uploads worklog time to jira'
+    upload_parser = sub_parser.add_parser( 'upload', help = blurb, description = blurb, parents = [ common_parser ] )
 
     args = parser.parse_args()
     try:
