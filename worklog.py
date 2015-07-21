@@ -501,13 +501,22 @@ def on_stop( args ):
 
 
 def log_to_jira( worklog ):
-    options = { 'server': 'http://dev.jira.gwn' }
     config_path = os.path.expanduser( '~/.worklog/config.json' )
 
     try:
         with open( config_path ) as json_data:
             auth_file = json.load( json_data )
-            username = auth_file['username']
+
+            try:
+                options = { 'server': '{}'.format( auth_file['server'] ) }
+            except KeyError:
+                server = imput( '\nJira Server: ' )
+                options = { 'server': server }
+
+            try:
+                username = auth_file['username']
+            except KeyError:
+                username = input( '\nJira Username: ' )
 
             try:
                 password = auth_file['password']
@@ -515,7 +524,7 @@ def log_to_jira( worklog ):
                 password = getpass()
 
     except OSError as e:
-        if e.errno == 2:
+        if e.errno ==  errno.ENOENT:
             username = input( '\nJira Username: ' )
             password = getpass()
         else:
@@ -523,9 +532,7 @@ def log_to_jira( worklog ):
 
     auth = ( username, password )
     jira = JIRA( options, basic_auth = auth )
-    if len( worklog ) == 0:
-        pass
-    else:
+    if len( worklog ) != 0:
         for task, next_task in worklog.pairwise():
             if isinstance( task, GoHome ): continue
 
@@ -644,6 +651,10 @@ def main():
 
               Example File:
                 { "username" : "jsmith" }
+
+              WARNING:
+                Uploading multiple times in one calendar day will cause inconsistencies with time tracking
+                on the server side.
         """ ),
     )
     sub_parser = parser.add_subparsers( dest = 'command' )
@@ -655,7 +666,7 @@ def main():
     start_parser = sub_parser.add_parser( 'start', help = blurb, description = blurb, parents = [ common_parser ] )
     start_parser.add_argument( '--ago', metavar = 'DURATION', help = 'start the task DURATION time ago, instead of now' )
     start_parser.add_argument( '--at', metavar = 'TIME', help = 'start the task at TIME, instead of now' )
-    start_parser.add_argument( '--ticket', metavar = 'TICKET', help = 'the TICKET associated with the task' )
+    start_parser.add_argument( '-t', '--ticket', metavar = 'TICKET', help = 'the TICKET associated with the task' )
     start_parser.add_argument( 'description', metavar = 'DESCRIPTION', nargs = argparse.REMAINDER, help = "specify the task's description on the command line" )
 
     blurb = 'like start, but reuse the description from a previous task in this worklog by seleting it from a list'
