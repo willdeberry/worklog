@@ -506,29 +506,30 @@ def log_to_jira( worklog ):
     try:
         with open( config_path ) as json_data:
             auth_file = json.load( json_data )
-
-            try:
-                options = { 'server': '{}'.format( auth_file['server'] ) }
-            except KeyError:
-                server = imput( '\nJira Server: ' )
-                options = { 'server': server }
-
-            try:
-                username = auth_file['username']
-            except KeyError:
-                username = input( '\nJira Username: ' )
-
-            try:
-                password = auth_file['password']
-            except KeyError:
-                password = getpass()
-
     except OSError as e:
         if e.errno ==  errno.ENOENT:
+            server = imput( '\nJira Server: ' )
+            options = { 'server': server }
             username = input( '\nJira Username: ' )
             password = getpass()
         else:
             raise e
+    else:
+        try:
+            options = { 'server': '{}'.format( auth_file['server'] ) }
+        except KeyError:
+            server = imput( '\nJira Server: ' )
+            options = { 'server': server }
+
+        try:
+            username = auth_file['username']
+        except KeyError:
+            username = input( '\nJira Username: ' )
+
+        try:
+            password = auth_file['password']
+        except KeyError:
+            password = getpass()
 
     auth = ( username, password )
     jira = JIRA( options, basic_auth = auth )
